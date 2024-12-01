@@ -1,51 +1,61 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "error.h"
 #include "http.h"
 #include "request.h"
+#include "response.h"
 
 #define PORT 8080
 
-/**
- * Gets the first line in the given buffer. If the line does not contain a new
- * line buffer then it returns NULL.
- */
-// int get_line(char **line, char **buffer, const int buffer_size)
-// {
-// 	int line_length = 0;
-
-// 	// Read until we come across CRLF or we reach the end of the buffer.
-// 	while (line_length <= buffer_size &&
-// 		   (*buffer)[line_length] !=
-// 			   '\n') // TODO what if the line is empty??? Currently the
-// 					 // line_length returned is 1 or more. Never 0 because of
-// 					 // the '\r` character.
-// 	{
-// 		line_length++;
-// 	}
-
-// 	if (line_length == buffer_size) {
-// 		return -1;
-// 	}
-
-// 	*line = (char *)malloc(line_length * sizeof(char));
-
-// 	// assert(*line != NULL);//TODO
-
-// 	strncpy(*line, *buffer, line_length);
-// 	// line_length-1 to get rid of the '/r'.
-// 	(*line)[line_length - 1] = '\0';
-
-// 	// Move buffer address forward to the end of the line so it is ready for the
-// 	// next sgetline call.
-// 	*buffer += line_length + 1;
-
-// 	return line_length;
-// }
-
-err_code handler(struct Request *req)
+err_code handler(struct Request *req, RESPONSE *res)
 {
-	printf("Request URL: %s\n", req->url);
+	err_code err = 0;
+	printf("<-- %s %s\n", req->method, req->uri);
+
+	// Only Accept GET requests
+	if (strcmp(req->method, "GET") != 0) {
+		if ((err = status(res, 405))) {
+			debug_code(err);
+			return err;
+		}
+
+		return 0;
+	}
+
+	if (strcmp(req->uri, "/index.html") == 0) {
+		if ((err = send_file(res, "./wwwroot/index.html"))) {
+			debug_code(err);
+			return err;
+		}
+	} else if (strcmp(req->uri, "/index.css") == 0) {
+		if ((err = send_file(res, "./wwwroot/index.css"))) {
+			debug_code(err);
+			return err;
+		}
+	} else if (strcmp(req->uri, "/index.js") == 0) {
+		if ((err = send_file(res, "./wwwroot/index.js"))) {
+			debug_code(err);
+			return err;
+		}
+	} else if (strcmp(req->uri, "/favicon.png") == 0) {
+		if ((err = send_file(res, "./wwwroot/favicon.png"))) {
+			debug_code(err);
+			return err;
+		}
+	} else {
+		if ((err = status(res, 404))) {
+			debug_code(err);
+			return err;
+		}
+
+		char *body = "<h1>404 - Not found</h1>";
+		if ((err = send_body(res, body, strlen(body)))) {
+			debug_code(err);
+			return err;
+		}
+	}
+
 	return 0;
 }
 
@@ -53,6 +63,7 @@ int main(void)
 {
 	err_code err = 0;
 	if ((err = http_listen(&handler, PORT))) {
+		debug_code(err);
 		return err;
 	}
 

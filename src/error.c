@@ -15,7 +15,7 @@ const char *error_code_str(err_code code)
 		return STRINGIFY(ERR_UNSUPPORTED);
 	case ERR_NOT_IMPLEMENTED:
 		return STRINGIFY(ERR_NOT_IMPLEMENTED);
-
-		return NULL;
 	}
+
+	return NULL;
 }

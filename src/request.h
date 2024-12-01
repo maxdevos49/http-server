@@ -6,10 +6,11 @@
 #include "error.h"
 
 struct Request {
-	// enum Method method;
-	char *url;
+	char* method;
+	char *uri;
+	char* version;
 	// struct Header **headers;
-	void *body;
+	// void *body;
 };
 
 err_code parse_request(const void *data, size_t data_size,

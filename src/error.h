@@ -1,6 +1,11 @@
 #ifndef __ERROR_H
 #define __ERROR_H 1
 
+#include <stddef.h>
+#include <stdio.h>
+
+#define DEBUG 1
+
 // Zero means all is well. Anything else means something went wrong!
 typedef int err_code;
 
@@ -9,6 +14,9 @@ enum ERROR_CODE {
 	ERR_NULL = 0x02,
 	ERR_UNSUPPORTED = 0x03,
 	ERR_NOT_IMPLEMENTED = 0x04,
+	ERR_NOMEM = 0x05,
+	ERR_SOCKET = 0x06,
+	ERR_FILE = 0x07,
 };
 
 const char *error_code_str(err_code code);
